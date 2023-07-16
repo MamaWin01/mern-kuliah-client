@@ -20,6 +20,7 @@ function Login() {
           auth.authenticate(data, () => {
             if(data.error){
               setValues({...values, error: data.error})
+              alert('password wrong')
             } else {
               navigate('/home')
               setValues({...values, error: '', signedIn: true})

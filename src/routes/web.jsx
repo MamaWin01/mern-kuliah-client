@@ -4,7 +4,9 @@ import NotFound from '../views/home/NotFound';
 import Home from '../views/home/HomePages'
 import Login from '../views/Auth/Login'
 import Register from '../views/Auth/Register'
-import Profile from '../views/home/Profile'
+import Profile from '../views/Auth/Profile'
+import Jabatan from '../views/home/Jabatan/Jabatan'
+import Layout from '../views/layout/MainPages'
 
 export default function Web() {
   const routes = useRoutes([
@@ -22,11 +24,14 @@ export default function Web() {
     },
     {
       path: '/home',
-      element: <Protected><Home /></Protected>,
-    },
-    {
-      path: '/home/profile',
-      element: <Protected><Profile /></Protected>,
+      element: <Protected><Layout /></Protected>,
+      children: [
+        { element: <Home />, index: true },
+        { path: 'profile', element: <Profile /> },
+        { path: 'jabatan', element: <Jabatan /> },
+        { path: 'jabatan/create', element: <Jabatan /> },
+        { path: 'jabatan/edit/id', element: <Jabatan /> },
+      ],
     },
     {
       path: '*',
