@@ -54,7 +54,7 @@ const updateUser = async (token, data) => {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': "bearer "+token
+        'Authorization': "Bearer "+token
       },
       body:JSON.stringify(data)
     })

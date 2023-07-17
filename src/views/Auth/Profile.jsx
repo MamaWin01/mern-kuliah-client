@@ -25,6 +25,7 @@ function Home() {
         name: user.name,
         email: user.email,
         password: '',
+        new_name: user.name,
         new_password: '',
         error: '',
         signedIn: false,
@@ -38,8 +39,12 @@ function Home() {
     const handleUpdateUser = (event) => {
         event.preventDefault();
 
-        AuthServices.updateUser(token, values).then(() => {
-            logout()
+        AuthServices.updateUser(token, values).then((response) => {
+            if(response.error) {
+                alert('wrong password');
+            } else {
+                logout()
+            }
         })
     }
 
@@ -58,7 +63,7 @@ function Home() {
                         id="name"
                         className="form-control rounded-0"
                         defaultValue={user.name}
-                        onChange={handleChange('name')}
+                        onChange={handleChange('new_name')}
                     />
                 </div>
                 <div className="mb-3" style={{width:"80%"}}>

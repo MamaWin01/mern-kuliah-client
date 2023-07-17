@@ -5,7 +5,7 @@ import Home from '../views/home/HomePages'
 import Login from '../views/Auth/Login'
 import Register from '../views/Auth/Register'
 import Profile from '../views/Auth/Profile'
-import Jabatan from '../views/home/Jabatan/Jabatan'
+import Jabatan from '../views/home/Jabatan/jabatan'
 import Layout from '../views/layout/MainPages'
 
 export default function Web() {
@@ -29,7 +29,6 @@ export default function Web() {
         { element: <Home />, index: true },
         { path: 'profile', element: <Profile /> },
         { path: 'jabatan', element: <Jabatan /> },
-        { path: 'jabatan/create', element: <Jabatan /> },
         { path: 'jabatan/edit/id', element: <Jabatan /> },
       ],
     },
