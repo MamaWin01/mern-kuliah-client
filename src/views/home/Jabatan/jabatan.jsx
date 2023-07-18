@@ -50,10 +50,13 @@ const Table = (props) => {
   }
 
 function Jabatan() {
+    // for refresh page
+    const [isChange, setChange] = useState(false)
     // for modal poup yey!
     const [isShowCreate, invokeModalCreate] = useState(false)
     const [isShowEdit, invokeModalEdit] = useState(false)
     const [editJabatan, setEditJabatan] = useState({
+      id:'',
       name: '',
       pokok: '',
       transportasi: '',
@@ -112,6 +115,7 @@ function Jabatan() {
                 data.json().then(data => {
                     if(data.result){
                         setJabatan(data.result)
+                        setChange(false)
                     }
                 })
               } catch (err) {
@@ -119,7 +123,7 @@ function Jabatan() {
               }
         }
         getData()
-    }, [token])
+    }, [token, isChange])
 
     // column for grid table
     const columns = [
@@ -153,6 +157,7 @@ function Jabatan() {
         if(response.error) {
           alert('something went wrong')
         } else {
+          setChange(true)
         }
       } catch (err) {
         console.log(err)
@@ -160,7 +165,8 @@ function Jabatan() {
     }
 
     // create jabatan
-    async function handleCreate() {
+    async function handleCreate(event) {
+      event.preventDefault();
       try {
         let response = await fetch(`${import.meta.env.VITE_API_URL}/api/jabatan`, {
           method: 'post',
@@ -174,6 +180,8 @@ function Jabatan() {
         if(response.error) {
           alert('something went wrong')
         } else {
+          setChange(true)
+          initModal("close","create")
         }
       } catch (err) {
         console.log(err)
@@ -182,8 +190,27 @@ function Jabatan() {
 
     // update jabatan
     // create jabatan
-    async function handleUpdate() {
-      console.log(editJabatan);
+    async function handleUpdate(event) {
+      event.preventDefault();
+      try {
+        let response = await fetch(`${import.meta.env.VITE_API_URL}/api/jabatan/`+editJabatan.id, {
+          method: 'PUT',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer "+token
+          },
+          body:JSON.stringify(editJabatan)
+        })
+        if(response.error) {
+          alert('something went wrong')
+        } else {
+          setChange(true)
+          initModal("close","edit")
+        }
+      } catch (err) {
+        console.log(err)
+      }
     }
 
     const [values, setValues] = useState({
@@ -196,16 +223,22 @@ function Jabatan() {
     })
 
   const handleChange = (name,type) => event => {
-    console.log(name)
-    console.log(type)
     if(name == 'pokok' || name == 'transportasi' || name == 'makan') {
       event.target.value = numberFormat(event.target.value)
       if(event.target.value == '0') {
         event.target.value = "";
       }
-      setValues({...values, [name]: event.target.value })
+      if(type == 'edit') {
+        setEditJabatan({...editJabatan, [name]: event.target.value })
+      } else {
+        setValues({...values, [name]: event.target.value })
+      }
     } else {
-      setValues({...values, [name]: event.target.value })
+      if(type == 'edit') {
+        setEditJabatan({...editJabatan, [name]: event.target.value })
+      } else {
+        setValues({...values, [name]: event.target.value })
+      }
     }
   }
     return(
@@ -283,6 +316,7 @@ function Jabatan() {
                 <Modal.Body>
                   <form onSubmit={handleUpdate}>
                   <div className="mb-3" >
+                      <input type="hidden" value={editJabatan.id} name="id"/>
                       <TextField label = "Nama Jabatan"
                           type="text"
                           placeholder=""
@@ -328,8 +362,11 @@ function Jabatan() {
                           onChange={handleChange('makan','edit')}
                       />
                   </div>
-                  <div style={{paddingBottom:'15px',width:'20%',margin:'auto'}}>
-                      <Button type='submit' variant="contained" className="btn btn-success w-100 rounded-0">Update</Button>
+                  <div style={{paddingBottom:'15px',width:'20%',marginLeft:'171px',display:'flex'}}>
+                      <ThemeProvider theme={theme}>
+                        <Button type='submit' variant="contained" className="btn btn-success w-100 rounded-0">Update</Button>
+                        <Button sx={{marginLeft:'5px'}} color="newDanger" onClick={() => {initModal("close","edit", )}} variant="contained">Cancel</Button>
+                      </ThemeProvider>
                   </div>
                   </form> 
                 </Modal.Body>

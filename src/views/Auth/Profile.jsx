@@ -49,13 +49,11 @@ function Home() {
     }
 
     return(
-        <div style={{margin:"auto",width:"50%",border:"1px solid black",justifyContent:"center",alignItems:"center",display:"flex"}}>
+        <div style={{margin:"auto",marginTop:"120px",padding:"25px",width:"50%",border:"1px solid black",justifyContent:"center",alignItems:"center",display:""}}>
             <form onSubmit={handleUpdateUser}>
-                <div className="mb-3" style={{width:"80%"}}>
-                    <label style={{float:"left"}}>
-                        <strong >Nama</strong>
-                    </label>
-                    <TextField 
+                <div className="mb-3">
+                    <TextField label="Nama"
+                    
                         type="text"
                         placeholder="Masukan Nama"
                         autoComplete="off"
@@ -66,11 +64,8 @@ function Home() {
                         onChange={handleChange('new_name')}
                     />
                 </div>
-                <div className="mb-3" style={{width:"80%"}}>
-                    <label style={{float:"left"}}>
-                        <strong >Email</strong>
-                    </label>
-                    <TextField 
+                <div className="mb-3">
+                    <TextField label="Email"
                         type="text"
                         placeholder="Masukan Email"
                         autoComplete="off"
@@ -81,11 +76,8 @@ function Home() {
                         onChange={handleChange('email')}
                     />
                 </div>
-                <div className="mb-3" style={{width:"80%"}}>
-                    <label style={{float:"left"}}>
-                        <strong>Password</strong>
-                    </label>
-                    <TextField 
+                <div className="mb-3">
+                    <TextField label="Password"
                         type="password"
                         placeholder="Password"
                         name="password"
@@ -94,11 +86,8 @@ function Home() {
                         onChange={handleChange('password')}
                     />
                 </div>
-                <div className="mb-3" style={{width:"80%"}}>
-                    <label style={{float:"left"}}>
-                        <strong>New Password</strong>
-                    </label>
-                    <TextField 
+                <div className="mb-3">
+                    <TextField label="New Password"
                         type="password"
                         placeholder="New Password"
                         name="new_password"
@@ -107,10 +96,8 @@ function Home() {
                         onChange={handleChange('new_password')}
                     />
                 </div>
-                <div style={{paddingBottom:'5px',width:'50%',margin:'auto'}}>
-                    <button type="submit" className="btn btn-success w-100 rounded-0">
-                        Update
-                    </button>
+                <div style={{width:'30%',margin:'auto'}}>
+                <Button type='submit' variant="contained" className="btn btn-success w-100 rounded-0">Submit</Button>
                 </div>
             </form> 
         </div>
