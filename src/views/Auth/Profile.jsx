@@ -1,14 +1,12 @@
-import {useEffect, useState} from 'react'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
-import { Container } from '@mui/material';
-import auth from '../../helpers/auth';
+import { useState} from 'react'
 import { useNavigate, Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import auth from '../../helpers/auth';
+import Button from '@mui/material/Button';
 import TextField from "@mui/material/TextField";
 import AuthServices from '../../services/AuthServices';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 
 function Home() {
@@ -41,7 +39,7 @@ function Home() {
 
         AuthServices.updateUser(token, values).then((response) => {
             if(response.error) {
-                alert('wrong password');
+                setValues({'error':response.error})
             } else {
                 logout()
             }
@@ -96,8 +94,16 @@ function Home() {
                         onChange={handleChange('new_password')}
                     />
                 </div>
+                {
+                      values.error ? 
+                          <Stack sx={{ width: '100%',marginBottom:'5px' }} spacing={2}>
+                              <Alert severity="error">{values.error}</Alert>
+                          </Stack>
+                      :
+                          ''
+                  }
                 <div style={{width:'30%',margin:'auto'}}>
-                <Button type='submit' variant="contained" className="btn btn-success w-100 rounded-0">Submit</Button>
+                    <Button type='submit' variant="contained" className="btn btn-success w-100 rounded-0">Submit</Button>
                 </div>
             </form> 
         </div>

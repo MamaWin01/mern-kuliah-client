@@ -1,8 +1,10 @@
 import { useState } from "react";
-import auth from "../../helpers/auth";
 import { useNavigate, Link } from "react-router-dom";
+import auth from "../../helpers/auth";
 import AuthServices from "../../services/AuthServices"; 
 import TextField from "@mui/material/TextField";
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 function Login() {
     const navigate = useNavigate();
@@ -20,11 +22,10 @@ function Login() {
         AuthServices.login(values).then(data => {
           auth.authenticate(data, () => {
             if(data.error){
-              setValues({...values, error: data.error})
-              alert('password wrong')
+                setValues({'error':data.error})
             } else {
-              navigate('/home')
-              setValues({...values, error: '', signedIn: true})
+                navigate('/home')
+                setValues({...values, error: '', signedIn: true})
             }
           })
         })
@@ -62,6 +63,14 @@ function Login() {
                                 onChange={handleChange('password')}
                             />
                         </div>
+                        {
+                            values.error ? 
+                                <Stack sx={{ width: '100%',marginBottom:'5px' }} spacing={2}>
+                                    <Alert severity="error">{values.error}</Alert>
+                                </Stack>
+                            :
+                                ''
+                        }
                         <button type="submit" className="btn btn-success w-100 rounded-0">
                             Login
                         </button>
@@ -78,42 +87,3 @@ function Login() {
 }
 
 export default Login;
-
-{/* <div>
-<div style={{margin:"auto",marginTop:"120px",padding:"25px",width:"30%",border:"1px solid black",justifyContent:"center",alignItems:"center",display:"flex",backgroundColor:""}}>
-  <div className="mb-3">
-        <h2>Sign In</h2>
-        <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-                <TextField label = "Nama" 
-                    type="text"
-                    placeholder="Masukan Nama"
-                    autoComplete="off"
-                    name="name"
-                    className="form-control rounded-0"
-                    onChange={handleChange('name')}
-                />
-            </div>
-            <div className="mb-3">
-                <TextField label = "Password"
-                    type="password"
-                    placeholder="Password?"
-                    name="password"
-                    className="form-control rounded-0"
-                    onChange={handleChange('password')}
-                />
-            </div>
-            <Button type="submit" variant="contained" className="btn btn-success w-100 rounded-0">
-                Login
-            </Button>
-            <div style={{paddingBottom:'5px'}}>
-            </div>
-              <Button Link component={Link} to="/register" className="btn btn-success w-100 rounded-0" variant="contained">
-                  Register
-              </Button>
-        </form> 
-    </div>
-</div>  
-</div>
-)
-} */}

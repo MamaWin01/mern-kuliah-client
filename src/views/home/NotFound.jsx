@@ -1,5 +1,6 @@
 import { styled } from '@mui/material/styles';
 import { Button, Typography, Container, Box } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const StyledContent = styled('div')(({ theme }) => ({
   maxWidth: 480,
@@ -30,7 +31,7 @@ const NotFound = () => {
 				sx={{ height: 260, mx: 'auto', my: { xs: 5, sm: 10 } }}
 			/>
 
-			<Button href="/" size="large" variant="contained">
+			<Button component={Link} to="/" size="large" variant="contained">
 				Go to Home
 			</Button>
 		</StyledContent>

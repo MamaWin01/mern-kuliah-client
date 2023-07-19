@@ -1,13 +1,15 @@
 import {useEffect, useState} from 'react'
+import { Modal } from 'react-bootstrap'
+import { useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import auth from '../../../helpers/auth'
-import { DataGrid } from '@mui/x-data-grid'
-import { Button, Grid, Typography } from "@mui/material"
 import { numberFormat } from '../../../helpers/number'
-import { useNavigate, Link } from 'react-router-dom';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid'
+import { Button, Grid, Typography } from "@mui/material"
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Modal } from 'react-bootstrap'
 import TextField from "@mui/material/TextField";
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 // for button color
 const theme = createTheme({
@@ -44,6 +46,7 @@ const Table = (props) => {
             },
           }}
           pageSizeOptions={[10, 25, 100, 200]}
+          slots={{ toolbar: GridToolbar }}
         />
       </div>
     );
@@ -55,13 +58,29 @@ function Jabatan() {
     // for modal poup yey!
     const [isShowCreate, invokeModalCreate] = useState(false)
     const [isShowEdit, invokeModalEdit] = useState(false)
+    // for update
     const [editJabatan, setEditJabatan] = useState({
       id:'',
       name: '',
       pokok: '',
       transportasi: '',
       makan: '',
+      error: '',
     })
+    // for create
+    const [values, setValues] = useState({
+      name: '',
+      pokok: '',
+      transportasi: '',
+      makan: '',
+      error: '',
+      signedIn: false,
+    })
+    // token
+    const token = auth.isAuthenticated().token;
+    // for data and navigate
+    const Navigate = useNavigate()
+    const [Jabatan, setJabatan] = useState(Array)
 
     async function initModal(data, type, id='') {
       if(data == 'open') {
@@ -89,17 +108,14 @@ function Jabatan() {
         }
       } else {
         if(type == 'create') {
+          setValues({'error':''})
           return invokeModalCreate(false)
         } else {
+          setEditJabatan({'error':''})
           return invokeModalEdit(false)
         }
       }
     }
-    // token
-    const token = auth.isAuthenticated().token;
-    // for data and navigate
-    const Navigate = useNavigate()
-    const [jabatan, setJabatan] = useState(Array)
     // for validation
     useEffect(() => {
         async function getData() {
@@ -122,22 +138,23 @@ function Jabatan() {
                 console.log(err)
               }
         }
+
         getData()
     }, [token, isChange])
 
     // column for grid table
     const columns = [
-      { field: 'id', headerName: 'ID', flex: 1 },
-      { field: 'name', headerName: 'Nama Jabatan', flex: 1 },
-      { field: 'pokok', headerName: 'Gaji Pokok', flex: 1 , valueFormatter:(params) => 
+      { field: 'id', headerName: 'ID', flex: 1, align:"center", headerAlign:"center" },
+      { field: 'name', headerName: 'Nama Jabatan', flex: 1, align:"center", headerAlign:"center" },
+      { field: 'pokok', headerName: 'Gaji Pokok', flex: 1, align:"center", headerAlign:"center" , valueFormatter:(params) => 
           { return 'Rp ' + numberFormat(params.value)}},
-      { field: 'transportasi', headerName: 'Biaya Transportasi', flex: 1 , valueFormatter:(params) => 
+      { field: 'transportasi', headerName: 'Biaya Transportasi', flex: 1, align:"center", headerAlign:"center" , valueFormatter:(params) => 
           { return 'Rp ' + numberFormat(params.value)}},
-      { field: 'makan', headerName: 'Uang Makan', flex: 1 , valueFormatter:(params) => 
+      { field: 'makan', headerName: 'Uang Makan', flex: 1, align:"center", headerAlign:"center" , valueFormatter:(params) => 
           { return 'Rp ' + numberFormat(params.value)}},
-      { field: 'total', headerName: 'Total', flex: 1, valueGetter:(params) =>
-          { return 'Rp ' + numberFormat(parseInt(params.row.pokok) + parseInt(params.row.transportasi) + parseInt(params.row.makan))} },
-      { field: 'action', headerName: 'Action', flex: 1, renderCell:(params) => 
+      { field: 'total', headerName: 'Total', flex: 1, align:"center", headerAlign:"center", valueGetter:(params) =>
+          { return 'Rp ' + numberFormat(parseInt(params.row.pokok.replace(/\,/g, '')) + parseInt(params.row.transportasi.replace(/\,/g, '')) + parseInt(params.row.makan.replace(/\,/g, '')))} },
+      { field: 'action', headerName: 'Action', flex: 1, align:"center", headerAlign:"center", filterable:false,sortable: false, renderCell:(params) => 
           { return <ThemeProvider theme={theme}><Button color="success" onClick={() => {initModal("open","edit", params.row.id)}} variant="contained">Edit</Button>
           <Button sx={{marginLeft:"5px"}} color="newDanger" component={Link} onClick={() => {deleteJabatan(params.row.id)}} variant="contained">Delete</Button></ThemeProvider>
           }}
@@ -177,23 +194,24 @@ function Jabatan() {
           },
           body:JSON.stringify(values)
         })
-        if(response.error) {
-          alert('something went wrong')
-        } else {
-          setChange(true)
-          initModal("close","create")
-        }
+        await response.json().then(res => {
+          if(res.error) {
+            setValues({'error':res.error, 'name':(res.data.name || ''), 'pokok':(res.data.pokok || ''), 'transportasi':(res.data.transportasi || ''), 'makan':(res.data.makan || '')})
+          } else {
+            setChange(true)
+            initModal("close","create")
+          }
+        })
       } catch (err) {
         console.log(err)
       }
     }
 
     // update jabatan
-    // create jabatan
     async function handleUpdate(event) {
       event.preventDefault();
       try {
-        let response = await fetch(`${import.meta.env.VITE_API_URL}/api/jabatan/`+editJabatan.id, {
+        let response = await fetch(`${import.meta.env.VITE_API_URL}/api/jabatan/`+(editJabatan.id || editJabatan.backupid), {
           method: 'PUT',
           headers: {
             'Accept': 'application/json',
@@ -202,45 +220,39 @@ function Jabatan() {
           },
           body:JSON.stringify(editJabatan)
         })
-        if(response.error) {
-          alert('something went wrong')
-        } else {
-          setChange(true)
-          initModal("close","edit")
-        }
+        await response.json().then(res => {
+          if(res.error) {
+            setEditJabatan({'error':res.error, 'name':(res.data.name || ''), 'pokok':(res.data.pokok || ''), 'transportasi':(res.data.transportasi || ''), 'makan':(res.data.makan || ''), 'backupid':(res.data.backupid || '')})
+          } else {
+            setChange(true)
+            initModal("close","edit")
+          }
+        })
       } catch (err) {
         console.log(err)
       }
     }
 
-    const [values, setValues] = useState({
-      name: '',
-      pokok: '',
-      transportasi: '',
-      makan: '',
-      error: '',
-      signedIn: false,
-    })
-
-  const handleChange = (name,type) => event => {
-    if(name == 'pokok' || name == 'transportasi' || name == 'makan') {
-      event.target.value = numberFormat(event.target.value)
-      if(event.target.value == '0') {
-        event.target.value = "";
-      }
-      if(type == 'edit') {
-        setEditJabatan({...editJabatan, [name]: event.target.value })
+    // for change value
+    const handleChange = (name,type) => event => {
+      if(name == 'pokok' || name == 'transportasi' || name == 'makan') {
+        event.target.value = numberFormat(event.target.value)
+        if(event.target.value == '0') {
+          event.target.value = "";
+        }
+        if(type == 'edit') {
+          setEditJabatan({...editJabatan, [name]: event.target.value })
+        } else {
+          setValues({...values, [name]: event.target.value })
+        }
       } else {
-        setValues({...values, [name]: event.target.value })
-      }
-    } else {
-      if(type == 'edit') {
-        setEditJabatan({...editJabatan, [name]: event.target.value })
-      } else {
-        setValues({...values, [name]: event.target.value })
+        if(type == 'edit') {
+          setEditJabatan({...editJabatan, [name]: event.target.value })
+        } else {
+          setValues({...values, [name]: event.target.value })
+        }
       }
     }
-  }
     return(
         <div>
             <Grid container spacing="1">
@@ -253,7 +265,7 @@ function Jabatan() {
                 <Button  onClick={() => {initModal("open","create")}} variant="contained" sx={{ float: 'right' }}>Tambah Data</Button>
                 </Grid>
             </Grid>
-            <Table data={jabatan} columns={columns}/>
+            <Table data={Jabatan} columns={columns}/>
             <div className="modal show" style={{ display: 'block', position: 'initial' }}>
               <Modal show={isShowCreate} style={{marginTop:"190px"}}>
                 <Modal.Header closeButton onClick={() => {initModal("close","create")}}>
@@ -269,6 +281,8 @@ function Jabatan() {
                           name="name"
                           id="name"
                           className="form-control rounded-0"
+                          value={values.name}
+                          defaultValue={values.name}
                           onChange={handleChange('name','create')}
                       />
                   </div>
@@ -280,6 +294,8 @@ function Jabatan() {
                           name="pokok"
                           id="pokok"
                           className="form-control rounded-0"
+                          value={values.pokok}
+                          defaultValue={values.pokok}
                           onChange={handleChange('pokok','create')}
                       />
                   </div>
@@ -290,6 +306,8 @@ function Jabatan() {
                           name="transportasi"
                           id="transportasi"
                           className="form-control rounded-0"
+                          value={values.transportasi}
+                          defaultValue={values.transportasi}
                           onChange={handleChange('transportasi','create')}
                       />
                   </div>
@@ -300,13 +318,23 @@ function Jabatan() {
                           name="makan"
                           id="makan"
                           className="form-control rounded-0"
+                          value={values.makan}
+                          defaultValue={values.makan}
                           onChange={handleChange('makan','create')}
                       />
                   </div>
+                  {
+                      values.error ? 
+                          <Stack sx={{ width: '100%',marginBottom:'5px' }} spacing={2}>
+                              <Alert severity="error">{values.error}</Alert>
+                          </Stack>
+                      :
+                          ''
+                  }
                   <div style={{paddingBottom:'15px',width:'20%',margin:'auto'}}>
                       <Button type='submit' variant="contained" className="btn btn-success w-100 rounded-0">Submit</Button>
                   </div>
-              </form> 
+                  </form> 
                 </Modal.Body>
               </Modal>
               <Modal show={isShowEdit} style={{marginTop:"190px"}}>
@@ -362,6 +390,14 @@ function Jabatan() {
                           onChange={handleChange('makan','edit')}
                       />
                   </div>
+                  {
+                      editJabatan.error ? 
+                          <Stack sx={{ width: '100%',marginBottom:'5px' }} spacing={2}>
+                              <Alert severity="error">{editJabatan.error}</Alert>
+                          </Stack>
+                      :
+                          ''
+                  }
                   <div style={{paddingBottom:'15px',width:'20%',marginLeft:'171px',display:'flex'}}>
                       <ThemeProvider theme={theme}>
                         <Button type='submit' variant="contained" className="btn btn-success w-100 rounded-0">Update</Button>
