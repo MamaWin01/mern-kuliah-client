@@ -98,9 +98,9 @@ export default function Gaji() {
             return ('Rp ' + params.row.jabatan.makan)} }, 
         { field: 'kehadiran', headerName: 'Potongan Kehadiran', flex: 1, align:"center", headerAlign:"center", valueGetter:(params) => {
             console.log(params.row) 
-            return 'Rp ' + numberFormat(parseInt(params.row.jabatan.pokok.replace(',','')) - ((parseInt(params.row.jabatan.pokok.replace(',','')) / 31) * parseInt(params.row.kehadiran.hadir)))} }, 
+            return 'Rp ' + numberFormat(parseInt(params.row.jabatan.pokok.replace(/\,/g, '')) - ((parseInt(params.row.jabatan.pokok.replace(/\,/g, '')) / 31) * parseInt(params.row.kehadiran.hadir)))} }, 
         { field: 'total', headerName: 'Total Gaji', flex: 1, align:"center", headerAlign:"center", valueGetter:(params) => { 
-            return 'Rp ' + numberFormat(parseInt(params.row.jabatan.pokok.replace(',','')) + parseInt(params.row.jabatan.transportasi.replace(',','')) + parseInt(params.row.jabatan.makan.replace(',','')) - (parseInt(params.row.jabatan.pokok.replace(',','')) - ((parseInt(params.row.jabatan.pokok.replace(',','')) / 31) * parseInt(params.row.kehadiran.hadir))))} }, 
+            return 'Rp ' + numberFormat(parseInt(params.row.jabatan.pokok.replace(/\,/g, '')) + parseInt(params.row.jabatan.transportasi.replace(/\,/g, '')) + parseInt(params.row.jabatan.makan.replace(/\,/g, '')) - (parseInt(params.row.jabatan.pokok.replace(/\,/g, '')) - ((parseInt(params.row.jabatan.pokok.replace(/\,/g, '')) / 31) * parseInt(params.row.kehadiran.hadir))))} }, 
         
       
     

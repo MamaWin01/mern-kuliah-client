@@ -291,7 +291,7 @@ export default function Karyawan() {
             </Grid>
             <Table data={Karyawan} columns={columns}/>
             <div className="modal show" style={{ display: 'block', position: 'initial' }}>
-              <Modal show={isShowCreate} style={{marginTop:"190px"}}>
+              <Modal show={isShowCreate} style={{marginTop:"120px"}}>
                 <Modal.Header closeButton onClick={() => {initModal("close","create")}}>
                   <Modal.Title>Tambah Karyawan Baru</Modal.Title>
                 </Modal.Header>
